@@ -25,8 +25,8 @@ limitations under the License.
 #include "tensorflow/c/eager/abstract_operation.h"
 #include "tensorflow/c/eager/abstract_tensor_handle.h"
 #include "tensorflow/c/eager/tracing_utils.h"
-#include "xla/tsl/platform/errors.h"
-#include "tensorflow/core/platform/status.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/platform/errors.h"
 
 using tensorflow::tracing::MaybeSetOpName;
 
@@ -57,8 +57,10 @@ absl::Status SparseSoftmaxCrossEntropyWithLogits(
   int num_retvals = 2;
   AbstractTensorHandle* temp_outputs[2];
   absl::Status status = op_ptr->Execute(temp_outputs, &num_retvals);
-  *loss = temp_outputs[0];
-  *backprop = temp_outputs[1];
+  if (status.ok()) {
+    *loss = temp_outputs[0];
+    *backprop = temp_outputs[1];
+  }
   return status;
 }
 

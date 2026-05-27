@@ -17,7 +17,7 @@ limitations under the License.
 
 #include "tensorflow/c/experimental/ops/io_ops.h"
 
-#include <vector>
+#include <cstring>
 
 #include "absl/status/status.h"
 #include "absl/types/span.h"
@@ -25,9 +25,8 @@ limitations under the License.
 #include "tensorflow/c/eager/abstract_operation.h"
 #include "tensorflow/c/eager/abstract_tensor_handle.h"
 #include "tensorflow/c/eager/tracing_utils.h"
-#include "xla/tsl/platform/errors.h"
-#include "tensorflow/core/framework/types.pb.h"
-#include "tensorflow/core/platform/status.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/platform/errors.h"
 
 using tensorflow::tracing::MaybeSetOpName;
 
