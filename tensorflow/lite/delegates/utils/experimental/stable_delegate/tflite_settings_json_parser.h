@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <string>
 
+#include "flatbuffers/base.h"  // from @flatbuffers
 #include "flatbuffers/idl.h"  // from @flatbuffers
 #include "tensorflow/lite/acceleration/configuration/configuration_generated.h"
 
@@ -33,6 +34,7 @@ namespace utils {
 class TfLiteSettingsJsonParser {
  public:
   TfLiteSettingsJsonParser();
+  virtual ~TfLiteSettingsJsonParser() = default;
 
   // Loads TFLiteSettings from a JSON file path. The lifetime of the
   // TFLiteSettings object is tied to the lifetime of the
@@ -53,10 +55,10 @@ class TfLiteSettingsJsonParser {
   // loaded.
   flatbuffers::uoffset_t GetBufferSize();
 
- private:
+ protected:
   // Parses content inside `json_file_path` into flatbuffer. Returns true if the
   // parsing was successful, otherwise the method returns false.
-  bool LoadFromJsonFile(const std::string& json_file_path);
+  virtual bool LoadFromJsonFile(const std::string& json_file_path);
 
   flatbuffers::Parser parser_;
   uint8_t* buffer_pointer_;

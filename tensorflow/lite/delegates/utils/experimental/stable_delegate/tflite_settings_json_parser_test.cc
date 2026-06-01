@@ -70,4 +70,26 @@ TEST(TfLiteSettingsJsonParserTest, FailedToParseInvalidSettings) {
   EXPECT_EQ(parser.GetBufferSize(), 0);
 }
 
+class TfLiteSettingsJsonParserWithInvalidBuffer
+    : public TfLiteSettingsJsonParser {
+ protected:
+  bool LoadFromJsonFile(const std::string& json_file_path) override {
+    if (!TfLiteSettingsJsonParser::LoadFromJsonFile(json_file_path)) {
+      return false;
+    }
+    // Corrupt the buffer size so that flatbuffers::Verifier fails.
+    buffer_size_ = 1;
+    return true;
+  }
+};
+
+TEST(TfLiteSettingsJsonParserTest, FailedToVerifySettingsBuffer) {
+  TfLiteSettingsJsonParserWithInvalidBuffer parser;
+
+  EXPECT_EQ(
+      parser.Parse("tensorflow/lite/delegates/utils/experimental/"
+                   "stable_delegate/test_xnnpack_settings.json"),
+      nullptr);
+}
+
 }  // namespace
