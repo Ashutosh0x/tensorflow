@@ -913,13 +913,32 @@ absl::Status VerifyReshapeContiguity(
   // All dimensions before i are size 1 and all dimensions after j are full.
   // If i >= j, then only index k=i=j potentially partially tiled.
   if (i < j) {
-    return FormatError(
-        "Multiple dimensions are partially tiled: tile_size [",
-        absl::StrJoin(multidim_side_tiles, ", ",
-                      [](std::string* out, const DimTile& tile) {
-                        absl::StrAppend(out, tile.size.ToString());
-                      }),
-        "], dims [", absl::StrJoin(multidim_side_dims, ", "), "]");
+    std::string detail_msg =
+        absl::StrCat("Multiple dimensions are partially tiled: tile_size [",
+                     absl::StrJoin(multidim_side_tiles, ", ",
+                                   [](std::string* out, const DimTile& tile) {
+                                     absl::StrAppend(out, tile.size.ToString());
+                                   }),
+                     "], dims [", absl::StrJoin(multidim_side_dims, ", "), "]");
+
+    // Check if any of the potentially partially tiled dimensions are symbolic.
+    // If they are symbolic, we relax the contiguity check during symbolic
+    // propagation, since it will be strictly validated later with concrete tile
+    // sizes during autotuning.
+    bool is_symbolic = false;
+    for (int k = i; k <= j; ++k) {
+      if (!TryGetConstantValue(multidim_side_tiles[k].size).has_value()) {
+        is_symbolic = true;
+        break;
+      }
+    }
+    if (is_symbolic) {
+      VLOG(2) << "Relaxing VerifyReshapeContiguity check for symbolic tiles: "
+              << detail_msg;
+      return absl::OkStatus();
+    }
+
+    return FormatError(detail_msg);
   }
 
   return absl::OkStatus();
