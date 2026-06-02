@@ -2490,7 +2490,6 @@ xla_test(
     tags = [
         "cuda-only",
         "nomsan",  # Pulls in precompiled NVIDIA libraries which cause false positives in msan.
-        "pjrt_migration_candidate",
     ],
     use_legacy_runtime = True,
     deps = [
@@ -2534,7 +2533,6 @@ xla_cc_test(
         "gpu",
         "no_oss",
         "nomsan",  # Pulls in precompiled NVIDIA libraries which cause false positives in msan.
-        "pjrt_migration_candidate",
         "requires-gpu-nvidia",
     ],
     deps = if_cuda_is_configured([
@@ -3754,7 +3752,6 @@ xla_test(
     tags = [
         "gpu",
         "oneapi-only",
-        "pjrt_migration_candidate",
     ] + if_google([
         # TODO(b/456585142): Currently we don't support building the SYCL backend.
         "notap",
