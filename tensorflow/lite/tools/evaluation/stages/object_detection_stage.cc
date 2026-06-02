@@ -113,7 +113,9 @@ TfLiteStatus ObjectDetectionStage::Run() {
   // Inference.
   std::vector<void*> data_ptrs = {};
   data_ptrs.push_back(preprocessing_stage_->GetPreprocessedImageData());
-  inference_stage_->SetInputs(data_ptrs);
+  std::vector<size_t> data_sizes = {};
+  data_sizes.push_back(preprocessing_stage_->GetPreprocessedImageDataSize());
+  inference_stage_->SetInputs(data_ptrs, data_sizes);
   TF_LITE_ENSURE_STATUS(inference_stage_->Run());
 
   // Convert model output to ObjectsSet.

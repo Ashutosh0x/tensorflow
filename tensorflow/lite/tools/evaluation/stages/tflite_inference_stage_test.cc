@@ -168,7 +168,9 @@ TEST(TfliteInferenceStage, CorrectOutput) {
   SetValues(input_tensor, static_cast<uint8_t>(2));
   std::vector<void*> inputs;
   inputs.push_back(input_tensor);
-  stage.SetInputs(inputs);
+  std::vector<size_t> input_sizes;
+  input_sizes.push_back(sizeof(input_tensor));
+  stage.SetInputs(inputs, input_sizes);
 
   // Run.
   EXPECT_EQ(stage.Run(), kTfLiteOk);
