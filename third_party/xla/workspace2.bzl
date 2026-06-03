@@ -361,10 +361,29 @@ def _tf_repositories():
 
     tf_http_archive(
         name = "com_github_grpc_grpc",
-        sha256 = "e2ace790a5f2d0f83259d1390a816a33b013ea34df2e86084d927e58daa4c5d9",
-        strip_prefix = "grpc-1.78.0",
-        patch_file = ["//third_party/grpc:grpc.patch", "//third_party/grpc:layering_check.patch"],
-        urls = tf_mirror_urls("https://github.com/grpc/grpc/archive/refs/tags/v1.78.0.tar.gz"),
+        sha256 = "41b695614b26652ff9e97ce50cfd4a6c7a3d45a9fe598d1454407746499bbf2c",
+        strip_prefix = "grpc-1.81.0",
+        patch_file = [
+            "//third_party/grpc:grpc.patch",
+            "//third_party/grpc:layering_check_bzl.patch",
+            "//third_party/grpc:layering_check_build.patch",
+        ],
+        patch_cmds = [
+            """python3 -c '
+import os
+p = "src/python/grpcio/grpc/_cython/_cygrpc/aio/completion_queue.pxd.pxi"
+if os.path.exists(p):
+    with open(p, "rb") as f: c = f.read()
+    t_lf = b"        write(fd, \\"1\\", 1);\\n"
+    t_crlf = b"        write(fd, \\"1\\", 1);\\r\\n"
+    r_lf = b"        if (write(fd, \\"1\\", 1) < 0) {\\n            // Ignore error\\n        }\\n"
+    r_crlf = b"        if (write(fd, \\"1\\", 1) < 0) {\\r\\n            // Ignore error\\r\\n        }\\r\\n"
+    if t_crlf in c: c = c.replace(t_crlf, r_crlf)
+    elif t_lf in c: c = c.replace(t_lf, r_lf)
+    with open(p, "wb") as f: f.write(c)
+'""",
+        ],
+        urls = tf_mirror_urls("https://github.com/grpc/grpc/archive/refs/tags/v1.81.0.tar.gz"),
     )
 
     # Load the raw llvm-project.  llvm does not have build rules set up by default,
